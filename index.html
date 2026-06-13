@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>SONGO Distant</title>
+<style>
+body{
+font-family:Arial;
+text-align:center;
+background:#202020;
+color:white;
+}
+#plateau{
+width:700px;
+margin:auto;
+display:grid;
+grid-template-columns:repeat(7,90px);
+gap:10px;
+}
+.case{
+width:90px;
+height:90px;
+border-radius:50%;
+background:#404040;
+border:2px solid orange;
+display:flex;
+justify-content:center;
+align-items:center;
+cursor:pointer;
+font-size:22px;
+}
+button{
+padding:10px 20px;
+margin:10px;
+}
+</style>
+</head>
+<body>
+<h1>SONGO - Version Distante</h1>
+<p id="joueur"></p>
+<p>
+Nord :
+<span id="nord">0</span>
+|
+Sud :
+<span id="sud">0</span>
+</p>
+<div id="plateau"></div>
+<br>
+<button onclick="resetJeu()">
+Nouvelle Partie
+</button>
+<script>
+const URL =
+"http://localhost:3000";
+async function chargerEtat(){const rep =
+await fetch(URL+"/etat");
+const jeu =
+await rep.json();
+afficher(jeu);
+}
+async function jouer(index){
+const rep =
+await fetch(
+URL+"/jouer?case="+index
+);
+const jeu =
+await rep.json();
+afficher(jeu);
+}
+async function resetJeu(){
+await fetch(URL+"/reset");
+chargerEtat();
+}
+function afficher(jeu){
+document.getElementById(
+"joueur"
+).textContent =
+"Tour : " + jeu.joueur;
+document.getElementById(
+"nord"
+).textContent =
+jeu.scoreNord;
+document.getElementById(
+"sud"
+).textContent =
+jeu.scoreSud;
+let div =
+document.getElementById(
+"plateau"
+);
+div.innerHTML = "";
+for(let i=13;i>=7;i--){
+creerCase(
+div,
+jeu.plateau[i],
+i
+);
+}
+for(let i=0;i<=6;i++){
+creerCase(
+div,
+jeu.plateau[i],
+i
+);
+}
+}
+function creerCase(
+parent,
+valeur,
+index
+){let c =
+document.createElement("div");
+c.className = "case";
+c.textContent = valeur;
+c.onclick =
+()=> jouer(index);
+parent.appendChild(c);
+}
+chargerEtat();
+setInterval(
+chargerEtat,
+2000
+);
+</script>
+</body>
+</html>
